@@ -15,8 +15,8 @@ import (
 )
 
 type App struct {
-	Router  *gin.Engine
-	DB		*sql.DB
+	Router *gin.Engine
+	DB     *sql.DB
 }
 
 func (app *App) Initialize(config *config.DBConfig) {
@@ -34,10 +34,24 @@ func (app *App) Initialize(config *config.DBConfig) {
 
 	var err error
 	app.DB, err = sql.Open(config.Dialect, dbURI)
-	if err != nil { log.Fatal("Database Connect Failed.") }
+	if err != nil {
+		log.Fatal("Database Connect Failed.")
+	}
 
-	app.Router = gin.Default()
+	app.Router = gin.New()
 	app.SetRouters()
+	app.Router.Use(CORSMiddleware())
+
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Methods", "POST, PATCH, OPTIONS, GET, DELETE, PUT")
+		c.Next()
+	}
 }
 
 func (app *App) Run() {
@@ -72,8 +86,11 @@ func (app *App) SetRouters() {
 		fmt.Println(task)
 
 		var code int
-		if handle.UpdateTask(app.DB, task) > 0 { code = http.StatusOK
-		} else { code = http.StatusBadRequest}
+		if handle.UpdateTask(app.DB, task) > 0 {
+			code = http.StatusOK
+		} else {
+			code = http.StatusBadRequest
+		}
 
 		context.Status(code)
 	})
@@ -82,11 +99,13 @@ func (app *App) SetRouters() {
 		no, _ := strconv.Atoi(context.Param("no"))
 
 		var code int
-		if handle.DeleteTask(app.DB, no) > 0 { code = http.StatusOK
-		} else { code = http.StatusBadRequest}
+		if handle.DeleteTask(app.DB, no) > 0 {
+			code = http.StatusOK
+		} else {
+			code = http.StatusBadRequest
+		}
 
 		context.Status(code)
 	})
 
 }
-
