@@ -69,28 +69,25 @@ func (app *App) SetRouters() {
 		context.JSON(http.StatusOK, handle.GetTasks(app.DB))
 	})
 
-	app.Router.GET("/task/:no", func(context *gin.Context) {
-		no, _ := strconv.Atoi(context.Param("no"))
-		context.JSON(http.StatusOK, handle.GetTask(app.DB, no))
+	app.Router.GET("/task/:id", func(context *gin.Context) {
+		id, _ := strconv.Atoi(context.Param("id"))
+		context.JSON(http.StatusOK, handle.GetTask(app.DB, id))
 	})
 
 	app.Router.POST("/task", func(context *gin.Context) {
 		task := model.Task{}
 		context.BindJSON(&task)
-		fmt.Println(task)
 
 		handle.InsertTask(app.DB, task.Name)
 		context.Status(http.StatusOK)
 	})
 
-	app.Router.PATCH("/task/:no", func(context *gin.Context) {
+	app.Router.PATCH("/task/:id", func(context *gin.Context) {
 		task := model.Task{}
 		context.Bind(&task)
 
-		no, _ := strconv.Atoi(context.Param("no"))
-		task.No = no
-
-		fmt.Println(task)
+		id, _ := strconv.Atoi(context.Param("id"))
+		task.Id = id
 
 		var code int
 		if handle.UpdateTask(app.DB, task) > 0 {
@@ -102,11 +99,11 @@ func (app *App) SetRouters() {
 		context.Status(code)
 	})
 
-	app.Router.DELETE("/task/:no", func(context *gin.Context) {
-		no, _ := strconv.Atoi(context.Param("no"))
+	app.Router.DELETE("/task/:id", func(context *gin.Context) {
+		id, _ := strconv.Atoi(context.Param("id"))
 
 		var code int
-		if handle.DeleteTask(app.DB, no) > 0 {
+		if handle.DeleteTask(app.DB, id) > 0 {
 			code = http.StatusOK
 		} else {
 			code = http.StatusBadRequest

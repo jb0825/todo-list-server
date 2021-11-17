@@ -5,14 +5,14 @@ import (
 )
 
 type Task struct {
-	No        int    `json:"no"`
+	Id        int    `json:"id"`
 	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
 }
 
 func NewTask(no int, name string, completed bool) *Task {
 	t := &Task{
-		No:        no,
+		Id:        no,
 		Name:      name,
 		Completed: completed,
 	}
@@ -21,5 +21,5 @@ func NewTask(no int, name string, completed bool) *Task {
 }
 
 func (task *Task) ToString() string {
-	return fmt.Sprintf("No: %d, Name: %s, Completed: %t", task.No, task.Name, task.Completed)
+	return fmt.Sprintf("No: %d, Name: %s, Completed: %t", task.Id, task.Name, task.Completed)
 }

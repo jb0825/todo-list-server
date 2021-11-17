@@ -2,7 +2,6 @@ package handle
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"todo-list-server/app/model"
 )
@@ -21,25 +20,19 @@ func GetTasks(db *sql.DB) []model.Task {
 
 	task := model.Task{}
 	for rows.Next() {
-		err := rows.Scan(&task.No, &task.Name, &task.Completed)
+		err := rows.Scan(&task.Id, &task.Name, &task.Completed)
 		checkError(err)
 
 		tasks = append(tasks, task)
 	}
 
-	for _, task := range tasks {
-		fmt.Println(task.ToString())
-	}
-
 	return tasks
 }
 
-func GetTask(db *sql.DB, no int) model.Task {
+func GetTask(db *sql.DB, id int) model.Task {
 	task := model.Task{}
-	err := db.QueryRow("SELECT * FROM task WHERE no=?", no).Scan(&task.No, &task.Name, &task.Completed)
+	err := db.QueryRow("SELECT * FROM task WHERE id=?", id).Scan(&task.Id, &task.Name, &task.Completed)
 	checkError(err)
-
-	fmt.Println(task.ToString())
 
 	return task
 }
@@ -50,15 +43,15 @@ func InsertTask(db *sql.DB, name string) {
 }
 
 func UpdateTask(db *sql.DB, task model.Task) int {
-	result, err := db.Exec("UPDATE task SET name=?, completed=? WHERE no=?", task.Name, task.Completed, task.No)
+	result, err := db.Exec("UPDATE task SET name=?, completed=? WHERE id=?", task.Name, task.Completed, task.Id)
 	checkError(err)
 
 	cnt, _ := result.RowsAffected()
 	return int(cnt)
 }
 
-func DeleteTask(db *sql.DB, no int) int {
-	result, err := db.Exec("DELETE FROM task WHERE no=?", no)
+func DeleteTask(db *sql.DB, id int) int {
+	result, err := db.Exec("DELETE FROM task WHERE id=?", id)
 	checkError(err)
 
 	cnt, _ := result.RowsAffected()
