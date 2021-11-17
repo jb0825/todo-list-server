@@ -26,8 +26,7 @@ func (app *App) Initialize(config *config.DBConfig) {
 		config.Host,
 		config.Port,
 		config.Name,
-		config.Charset,
-	)
+		config.Charset)
 
 	fmt.Println(dbURI)
 	fmt.Println(config.Dialect)
