@@ -39,17 +39,23 @@ func (app *App) Initialize(config *config.DBConfig) {
 	}
 
 	app.Router = gin.New()
-	app.SetRouters()
 	app.Router.Use(CORSMiddleware())
+	app.SetRouters()
 
 }
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Header("Access-Control-Allow-Methods", "POST, PATCH, OPTIONS, GET, DELETE, PUT")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, OPTIONS, GET, DELETE, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
 		c.Next()
 	}
 }
@@ -69,10 +75,11 @@ func (app *App) SetRouters() {
 	})
 
 	app.Router.POST("/task", func(context *gin.Context) {
-		name := context.PostForm("name")
-		fmt.Println(name)
+		task := model.Task{}
+		context.BindJSON(&task)
+		fmt.Println(task)
 
-		handle.InsertTask(app.DB, name)
+		handle.InsertTask(app.DB, task.Name)
 		context.Status(http.StatusOK)
 	})
 

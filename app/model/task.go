@@ -5,15 +5,15 @@ import (
 )
 
 type Task struct {
-	No 	 	  int		`json:"-"`
-	Name 	  string	`json:"name"`
-	Completed bool		`json:"completed"`
+	No        int    `json:"no"`
+	Name      string `json:"name"`
+	Completed bool   `json:"completed"`
 }
 
 func NewTask(no int, name string, completed bool) *Task {
-	t := &Task {
-		No: no,
-		Name: name,
+	t := &Task{
+		No:        no,
+		Name:      name,
 		Completed: completed,
 	}
 
