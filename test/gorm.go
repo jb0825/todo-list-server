@@ -9,12 +9,12 @@ import (
 )
 
 type User struct {
-	Id       string `gorm:"primaryKey"`
+	Id       string `gorm:"primary_key"`
 	password string
 }
 
 type Task struct {
-	Id        int `gorm:"primaryKey"`
+	Id        int `gorm:"primary_key"`
 	Name      string
 	Completed bool
 	UserId    string
@@ -33,22 +33,7 @@ func (Task) TableName() string {
 	return "task"
 }
 
-func main() {
-	config := config.GetPostgresCongif()
-
-	dbURI := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Seoul",
-		config.Host,
-		config.Username,
-		config.Password,
-		config.Name,
-		config.Port,
-	)
-
-	db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func selectTest(db *gorm.DB) {
 	// SELECT * FROM task ORDER BY id LIMIT 1
 	println("First : ")
 	task := Task{}
@@ -140,11 +125,30 @@ func main() {
 	for idx, t := range tasks {
 		fmt.Println(idx, t)
 	}
+}
 
-	db.Table("users").
-		Select("*").
-		Joins("JOIN task ON users.id = task.user_id").
-		Where("task.user_id = ?", "id").
-		Scan(&tasks)
+func createTest(db *gorm.DB) {
+	task := Task{Name: "Create Task Test", UserId: "id"}
+	db.Save(&task)
 
+}
+
+func main() {
+	config := config.GetPostgresCongif()
+
+	dbURI := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Seoul",
+		config.Host,
+		config.Username,
+		config.Password,
+		config.Name,
+		config.Port,
+	)
+
+	db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//selectTest(db)
+	createTest(db)
 }
