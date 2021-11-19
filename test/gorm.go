@@ -24,7 +24,7 @@ func (task *Task) ToString() string {
 	return fmt.Sprintf("No: %d, Name: %s, Completed: %t", task.Id, task.Name, task.Completed)
 }
 
-// Table Name 정의
+// Table Name 정의하려면 Tabler Interface 사용
 type Tabler interface {
 	TableName() string
 }
@@ -128,13 +128,28 @@ func selectTest(db *gorm.DB) {
 }
 
 func createTest(db *gorm.DB) {
-	task := Task{Name: "Create Task Test", UserId: "id"}
-	db.Save(&task)
+	// postgreSQL 에서는 gorm 의 auto_increment 기능을 사용하지 않고,
+	// 테이블 생성 시 컬럼 타입을 serial 로 설정하면 값이 자동증가된다.
 
+	// INSERT
+	task := Task{Name: "create test", UserId: "id"}
+	db.Create(&task)
+}
+
+func updateTest(db *gorm.DB) {
+	// UPDATE
+	task := Task{Name: "changed", Id: 1}
+	db.Updates(&task)
+}
+
+func deleteTest(db *gorm.DB) {
+	// DELETE
+	task := Task{Id: 2}
+	db.Delete(&task)
 }
 
 func main() {
-	config := config.GetPostgresCongif()
+	config := config.GetPostgresConfig()
 
 	dbURI := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Seoul",
 		config.Host,
@@ -150,5 +165,7 @@ func main() {
 	}
 
 	//selectTest(db)
-	createTest(db)
+	//createTest(db)
+	//updateTest(db)
+	deleteTest(db)
 }

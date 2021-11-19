@@ -4,10 +4,19 @@ import (
 	"fmt"
 )
 
+type Tabler interface {
+	TableName() string
+}
+
+func (Task) TableName() string {
+	return "task"
+}
+
 type Task struct {
-	Id        int    `json:"id"`
+	Id        int    `json:"id" gorm:"primaryKey"`
 	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
+	UserId    string `json:"-" gorm:"-"`
 }
 
 func NewTask(no int, name string, completed bool) *Task {

@@ -1,38 +1,36 @@
 package app
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"strconv"
 	"todo-list-server/app/handle"
 	"todo-list-server/app/model"
-	"todo-list-server/config"
 )
 
 type App struct {
 	Router *gin.Engine
-	DB     *sql.DB
+	DB     *gorm.DB
 }
 
-func (app *App) Initialize(config *config.DBConfig) {
-	dbURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s",
-		config.Username,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Name,
-		config.Charset)
+func (app *App) Initialize(dsn string) {
 
-	fmt.Println(dbURI)
-	fmt.Println(config.Dialect)
+	/*
+		var err error
+		app.DB, err = sql.Open(config.Dialect, dbURI)
+		if err != nil {
+			log.Fatal("Database Connect Failed.")
+		}
+	*/
 
+	// gorm 사용
 	var err error
-	app.DB, err = sql.Open(config.Dialect, dbURI)
+	app.DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Database Connect Failed.")
 	}
@@ -65,20 +63,20 @@ func (app *App) Run() {
 
 func (app *App) SetRouters() {
 	app.Router.GET("/tasks", func(context *gin.Context) {
-		context.JSON(http.StatusOK, handle.GetTasks(app.DB))
+		context.JSON(http.StatusOK, handle.GetTasks2(app.DB))
 	})
 
 	app.Router.GET("/task/:id", func(context *gin.Context) {
 		id, _ := strconv.Atoi(context.Param("id"))
-		context.JSON(http.StatusOK, handle.GetTask(app.DB, id))
+		context.JSON(http.StatusOK, handle.GetTask2(app.DB, id))
 	})
 
 	app.Router.POST("/task", func(context *gin.Context) {
 		task := model.Task{}
 		context.BindJSON(&task)
 
-		handle.InsertTask(app.DB, task.Name)
-		context.Status(http.StatusOK)
+		result := handle.InsertTask2(app.DB, task)
+		context.Status(resultChecker(result))
 	})
 
 	app.Router.PATCH("/task/:id", func(context *gin.Context) {
@@ -88,27 +86,22 @@ func (app *App) SetRouters() {
 		id, _ := strconv.Atoi(context.Param("id"))
 		task.Id = id
 
-		var code int
-		if handle.UpdateTask(app.DB, task) > 0 {
-			code = http.StatusOK
-		} else {
-			code = http.StatusBadRequest
-		}
-
-		context.Status(code)
+		result := handle.UpdateTask2(app.DB, task)
+		context.Status(resultChecker(result))
 	})
 
 	app.Router.DELETE("/task/:id", func(context *gin.Context) {
 		id, _ := strconv.Atoi(context.Param("id"))
+		result := handle.DeleteTask2(app.DB, id)
 
-		var code int
-		if handle.DeleteTask(app.DB, id) > 0 {
-			code = http.StatusOK
-		} else {
-			code = http.StatusBadRequest
-		}
-
-		context.Status(code)
+		context.Status(resultChecker(result))
 	})
+}
 
+func resultChecker(result int) int {
+	if result > 0 {
+		return http.StatusOK
+	} else {
+		return http.StatusBadRequest
+	}
 }

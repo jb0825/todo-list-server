@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	config := config.GetConfig()
+	dsn := config.GetPostgresDSN(config.GetPostgresConfig())
 
 	app := &app.App{}
-	app.Initialize(config)
+	app.Initialize(dsn)
 	app.Run()
 }

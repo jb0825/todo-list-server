@@ -1,5 +1,7 @@
 package config
 
+import "fmt"
+
 type DBConfig struct {
 	Dialect  string
 	Host     string
@@ -21,8 +23,17 @@ func GetMysqlConfig() *DBConfig {
 		Charset:  "utf8",
 	}
 }
+func GetMysqlDSN(config *DBConfig) string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s",
+		config.Username,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.Name,
+		config.Charset)
+}
 
-func GetPostgresCongif() *DBConfig {
+func GetPostgresConfig() *DBConfig {
 	return &DBConfig{
 		Dialect:  "postgres",
 		Host:     "127.0.0.1",
@@ -32,4 +43,13 @@ func GetPostgresCongif() *DBConfig {
 		Name:     "todolist",
 		Charset:  "utf8",
 	}
+}
+func GetPostgresDSN(config *DBConfig) string {
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Seoul",
+		config.Host,
+		config.Username,
+		config.Password,
+		config.Name,
+		config.Port,
+	)
 }
