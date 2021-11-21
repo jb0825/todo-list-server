@@ -167,5 +167,5 @@ func main() {
 	//selectTest(db)
 	//createTest(db)
 	//updateTest(db)
-	deleteTest(db)
+	//deleteTest(db)
 }
