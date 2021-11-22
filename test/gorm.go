@@ -168,4 +168,16 @@ func main() {
 	//createTest(db)
 	//updateTest(db)
 	//deleteTest(db)
+
+	sqlInjection(db)
+}
+
+func sqlInjection(db *gorm.DB) {
+	task := Task{}
+	userInput := "9; drop table task;"
+
+	// safe, will be escaped
+	db.Where("id = ?", userInput).First(&task)
+
+	println(task.ToString())
 }
