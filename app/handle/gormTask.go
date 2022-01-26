@@ -7,6 +7,7 @@ import (
 )
 
 func GetTasks2(db *gorm.DB) []model.Task {
+	fmt.Println("getTask")
 	var tasks []model.Task
 	db.Find(&tasks)
 
@@ -18,6 +19,7 @@ func GetTasks2(db *gorm.DB) []model.Task {
 }
 
 func GetTask2(db *gorm.DB, id int) model.Task {
+	fmt.Println("getTask")
 	task := model.Task{}
 	db.Where("id = ?", id).First(&task)
 
@@ -27,12 +29,13 @@ func GetTask2(db *gorm.DB, id int) model.Task {
 }
 
 func InsertTask2(db *gorm.DB, task model.Task) int {
+	fmt.Println("insertTask")
 	result := db.Create(&task)
 	return int(result.RowsAffected)
 }
 
 func UpdateTask2(db *gorm.DB, task model.Task) int {
-	fmt.Println("update")
+	fmt.Println("updateTask")
 	fmt.Println(task.ToString())
 
 	result := db.Updates(&task)
@@ -40,6 +43,7 @@ func UpdateTask2(db *gorm.DB, task model.Task) int {
 }
 
 func DeleteTask2(db *gorm.DB, id int) int {
+	fmt.Println("deleteTask")
 	result := db.Delete(model.Task{Id: id})
 	return int(result.RowsAffected)
 }
